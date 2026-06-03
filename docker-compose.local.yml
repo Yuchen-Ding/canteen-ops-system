@@ -1,0 +1,63 @@
+name: canteen-ops
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: canteen_postgres_local
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-canteen_ops}
+      POSTGRES_USER: ${POSTGRES_USER:-canteen_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-canteen_password}
+    ports:
+      - "55432:5432"
+    volumes:
+      - canteen_postgres_local_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/10-init.sql:ro
+      - ./database/seed_data.sql:/docker-entrypoint-initdb.d/20-seed-data.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - canteen_network_local
+
+  backend:
+    build:
+      context: ./backend
+    container_name: canteen_backend_local
+    environment:
+      APP_ENV: ${APP_ENV:-local}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://canteen_user:canteen_password@postgres:5432/canteen_ops}
+      AI_PROVIDER: ${AI_PROVIDER:-mock}
+      AI_API_KEY: ${AI_API_KEY:-}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      CORS_ORIGINS_RAW: ${CORS_ORIGINS_RAW:-http://localhost:3100}
+    ports:
+      - "${BACKEND_PORT:-8100}:8100"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - canteen_network_local
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${FRONTEND_API_BASE_URL:-http://localhost:8100}
+    container_name: canteen_frontend_local
+    ports:
+      - "${FRONTEND_PORT:-3100}:3100"
+    depends_on:
+      - backend
+    networks:
+      - canteen_network_local
+
+volumes:
+  canteen_postgres_local_data:
+    name: canteen_postgres_local_data
+
+networks:
+  canteen_network_local:
+    name: canteen_network_local

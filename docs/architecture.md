@@ -1,0 +1,37 @@
+# 架构说明
+
+## 架构目标
+
+本系统用于模拟企业餐厅运营管理的真实业务和部署形态。阶段 0 聚焦可部署工程骨架，确保后续业务模块可以按边界扩展，而不是堆叠成单体 CRUD。
+
+## 逻辑分层
+
+- Frontend：React 管理后台，所有页面展示中文，代码命名使用英文。
+- Backend API：FastAPI 提供 REST API、健康检查、监控接口和业务服务入口。
+- Modules：后续承载餐厅、档口、菜品、订单、支付、退款、补贴、报表等业务模块。
+- Adapters：预留外部系统扩展点，第一版不接真实外部系统。
+- Database：PostgreSQL 保存业务数据、系统版本和后续报表聚合数据。
+
+## 适配器扩展点
+
+后端已预留以下目录：
+
+- `payment_adapter`：后续对接真实支付平台。
+- `card_system_adapter`：后续对接真实刷卡或门禁卡系统。
+- `employee_sync_adapter`：后续对接 HR 或企业组织系统。
+- `finance_report_adapter`：后续对接财务报表或 ERP。
+- `monitoring_adapter`：后续对接 Prometheus、日志平台或云监控。
+
+## 部署拓扑
+
+QA 环境建议部署在阿里云或华为云 Ubuntu 服务器中：
+
+- `canteen_frontend_qa`：Nginx 托管 React 静态资源。
+- `canteen_backend_qa`：FastAPI 服务。
+- `canteen_postgres_qa`：PostgreSQL，仅容器网络内部访问。
+- `canteen_network_qa`：项目专用 Docker network。
+- `canteen_postgres_qa_data`：项目专用数据库 volume。
+
+## 阶段 0 边界
+
+阶段 0 不创建完整业务模型，不实现订单、支付、退款、补贴或报表逻辑。数据库仅包含系统版本和迁移记录基础表。

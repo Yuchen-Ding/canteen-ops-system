@@ -1,0 +1,13 @@
+.env
+env/*.local
+env/*.qa
+env/*.prd
+node_modules
+__pycache__
+.pytest_cache
+dist
+build
+.DS_Store
+.venv
+*.pyc
+backups

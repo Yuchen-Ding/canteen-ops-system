@@ -1,0 +1,2 @@
+-- Stage 0 does not create business seed data.
+-- Business reference data will be added from stage 1.

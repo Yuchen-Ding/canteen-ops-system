@@ -1,0 +1,2 @@
+"""Monitoring adapter extension point."""
+
