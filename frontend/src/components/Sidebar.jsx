@@ -19,26 +19,26 @@ import {
   Utensils,
 } from 'lucide-react';
 
-const navigationItems = [
-  { label: '运营看板', icon: Gauge, active: true },
-  { label: '餐厅管理', icon: Building2 },
-  { label: '档口管理', icon: Store },
-  { label: '菜品管理', icon: Utensils },
-  { label: '套餐管理', icon: Package },
-  { label: '员工管理', icon: UsersRound },
-  { label: '访客管理', icon: UserRound },
-  { label: 'POS 设备', icon: TabletSmartphone },
-  { label: '订单管理', icon: ClipboardList },
-  { label: '支付流水', icon: BadgeDollarSign },
-  { label: '退款管理', icon: RefreshCcw },
-  { label: '补贴规则', icon: ShieldCheck },
-  { label: '报表中心', icon: BarChart3 },
-  { label: '设备监控', icon: Monitor },
-  { label: 'AI 运营总结', icon: Bot },
-  { label: '系统设置', icon: Settings },
+export const navigationItems = [
+  { key: 'dashboard', label: '运营看板', icon: Gauge },
+  { key: 'canteens', label: '餐厅管理', icon: Building2 },
+  { key: 'stalls', label: '档口管理', icon: Store },
+  { key: 'dishes', label: '菜品管理', icon: Utensils },
+  { key: 'mealPackages', label: '套餐管理', icon: Package },
+  { key: 'employees', label: '员工管理', icon: UsersRound },
+  { key: 'visitors', label: '访客管理', icon: UserRound },
+  { key: 'devices', label: 'POS 设备', icon: TabletSmartphone },
+  { key: 'orders', label: '订单管理', icon: ClipboardList, disabled: true },
+  { key: 'payments', label: '支付流水', icon: BadgeDollarSign, disabled: true },
+  { key: 'refunds', label: '退款管理', icon: RefreshCcw, disabled: true },
+  { key: 'subsidyRules', label: '补贴规则', icon: ShieldCheck, disabled: true },
+  { key: 'reports', label: '报表中心', icon: BarChart3, disabled: true },
+  { key: 'deviceMonitoring', label: '设备监控', icon: Monitor, disabled: true },
+  { key: 'aiSummary', label: 'AI 运营总结', icon: Bot, disabled: true },
+  { key: 'settings', label: '系统设置', icon: Settings, disabled: true },
 ];
 
-export function Sidebar() {
+export function Sidebar({ activePage, onNavigate }) {
   return (
     <aside className="sidebar">
       <div className="brand">
@@ -52,7 +52,14 @@ export function Sidebar() {
         {navigationItems.map((item) => {
           const Icon = item.icon;
           return (
-            <button className={`nav-item ${item.active ? 'active' : ''}`} key={item.label} type="button">
+            <button
+              className={`nav-item ${activePage === item.key ? 'active' : ''}`}
+              disabled={item.disabled}
+              key={item.key}
+              title={item.disabled ? '后续阶段实现' : item.label}
+              type="button"
+              onClick={() => onNavigate(item.key)}
+            >
               <Icon size={18} />
               <span>{item.label}</span>
             </button>

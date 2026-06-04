@@ -12,6 +12,31 @@
 - Adapters：预留外部系统扩展点，第一版不接真实外部系统。
 - Database：PostgreSQL 保存业务数据、系统版本和后续报表聚合数据。
 
+## 阶段 1 后端模块结构
+
+阶段 1 在 `backend/app/modules` 下按主数据资源拆分模块：
+
+- `canteens`
+- `stalls`
+- `dishes`
+- `meal_packages`
+- `employees`
+- `visitors`
+- `devices`
+
+每个模块包含 `model.py`、`schema.py`、`service.py`、`router.py`。公共 ORM Base、通用 CRUD 服务和标准路由工厂位于 `backend/app/common`。
+
+## 阶段 1 主数据关系
+
+- 一个 canteen 可以有多个 stalls。
+- 一个 stall 属于一个 canteen。
+- 一个 dish 属于一个 stall。
+- 一个 meal_package 属于一个 stall。
+- 一个 meal_package 可以通过 `meal_package_items` 包含多个 dishes。
+- 一个 employee 可以绑定 `card_no`。
+- 一个 visitor 作为访客消费对象。
+- 一个 device 属于一个 canteen，也可以绑定到某个 stall。
+
 ## 适配器扩展点
 
 后端已预留以下目录：
@@ -35,3 +60,5 @@ QA 环境建议部署在阿里云或华为云 Ubuntu 服务器中：
 ## 阶段 0 边界
 
 阶段 0 不创建完整业务模型，不实现订单、支付、退款、补贴或报表逻辑。数据库仅包含系统版本和迁移记录基础表。
+
+阶段 1 只实现主数据管理，不实现订单、支付、退款、补贴、报表或 AI。

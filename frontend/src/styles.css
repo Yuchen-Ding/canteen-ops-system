@@ -81,6 +81,16 @@ button {
   background: #2458a6;
 }
 
+.nav-item:disabled {
+  color: #6f7d91;
+  cursor: not-allowed;
+}
+
+.nav-item:disabled:hover {
+  color: #6f7d91;
+  background: transparent;
+}
+
 .main-content {
   flex: 1;
   min-width: 0;
@@ -202,6 +212,233 @@ h1 {
   margin-top: 8px;
 }
 
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.search-form,
+.toolbar-actions,
+.row-actions,
+.pagination > div,
+.form-actions,
+.form-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-form {
+  flex-wrap: wrap;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 260px;
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid #cfd9e6;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.search-box input,
+.search-form select,
+.form-field input,
+.form-field select,
+.form-field textarea {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  color: #172033;
+  background: transparent;
+  font: inherit;
+}
+
+.search-form select,
+.form-field input,
+.form-field select,
+.form-field textarea {
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid #cfd9e6;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.form-field textarea {
+  min-height: 78px;
+  padding-top: 10px;
+  resize: vertical;
+}
+
+.primary-button,
+.secondary-button,
+.text-button,
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 36px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.primary-button {
+  padding: 0 14px;
+  color: #ffffff;
+  border: 1px solid #1f5fbd;
+  background: #2458a6;
+}
+
+.secondary-button {
+  padding: 0 12px;
+  color: #25415f;
+  border: 1px solid #cfd9e6;
+  background: #ffffff;
+}
+
+.text-button {
+  padding: 0;
+  color: #2458a6;
+  border: 0;
+  background: transparent;
+}
+
+.icon-button {
+  width: 36px;
+  color: #25415f;
+  border: 1px solid #cfd9e6;
+  background: #ffffff;
+}
+
+.primary-button:disabled,
+.secondary-button:disabled,
+.icon-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.error-banner {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  color: #8a1f1f;
+  border: 1px solid #f0b8b8;
+  border-radius: 6px;
+  background: #fff0f0;
+}
+
+.record-form,
+.table-panel {
+  margin-bottom: 16px;
+  border: 1px solid #dbe4f0;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.record-form {
+  padding: 18px;
+}
+
+.form-heading {
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.form-heading h3 {
+  margin-bottom: 0;
+  font-size: 17px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.form-field {
+  display: grid;
+  gap: 7px;
+  color: #53657c;
+  font-size: 13px;
+}
+
+.form-field.wide {
+  grid-column: 1 / -1;
+}
+
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  min-height: 66px;
+  padding-top: 23px;
+}
+
+.checkbox-field input {
+  width: 16px;
+  height: 16px;
+}
+
+.form-actions {
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.table-panel {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  min-width: 860px;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #e8eef6;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+th {
+  color: #53657c;
+  font-size: 13px;
+  font-weight: 650;
+  background: #f8fafd;
+}
+
+td {
+  color: #1d2a3a;
+  font-size: 14px;
+}
+
+tr:last-child td {
+  border-bottom: 0;
+}
+
+.empty-cell {
+  color: #6b7b90;
+  text-align: center;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #53657c;
+  font-size: 14px;
+}
+
 @media (max-width: 1100px) {
   .status-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -227,7 +464,9 @@ h1 {
   }
 
   .topbar,
-  .content-band {
+  .content-band,
+  .toolbar,
+  .pagination {
     display: block;
   }
 
@@ -236,6 +475,21 @@ h1 {
   }
 
   .status-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .search-box {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .search-form,
+  .toolbar-actions,
+  .pagination > div {
+    margin-top: 10px;
+  }
+
+  .form-grid {
     grid-template-columns: 1fr;
   }
 }

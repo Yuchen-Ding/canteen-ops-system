@@ -8,15 +8,15 @@ const statusCards = [
     icon: GitBranch,
   },
   {
-    title: '健康检查',
-    value: '/health',
-    description: '后端提供服务、数据库和系统信息检查接口。',
+    title: '主数据模块',
+    value: '7 个',
+    description: '餐厅、档口、菜品、套餐、员工、访客、POS 设备。',
     icon: Activity,
   },
   {
     title: '数据库',
     value: 'PostgreSQL',
-    description: '阶段 0 仅创建系统版本表，不创建完整业务数据。',
+    description: '阶段 1 已增加主数据表和企业餐厅样例数据。',
     icon: Database,
   },
   {
@@ -28,7 +28,7 @@ const statusCards = [
 ];
 
 const roadmapItems = [
-  '阶段 1：餐厅、档口、菜品、员工、访客、POS 设备主数据',
+  '阶段 1：餐厅、档口、菜品、套餐、员工、访客、POS 设备主数据',
   '阶段 2：员工刷卡、访客扫码、订单与支付状态闭环',
   '阶段 3：退款、补贴计算、日报与月度结算',
   '阶段 4：设备监控、异常交易检测与监控指标',
@@ -63,9 +63,9 @@ export function Dashboard() {
 
       <div className="content-band">
         <div>
-          <h3>阶段 0 范围</h3>
+          <h3>阶段 1 范围</h3>
           <p>
-            本阶段只交付可上传 GitHub、可在云服务器 QA 环境部署的基础工程，不接入真实支付、刷卡硬件、HR、门禁或财务系统。
+            当前阶段只实现企业餐厅主数据管理，不接入真实支付、刷卡硬件、HR、门禁、财务系统，也不实现订单和补贴计算。
           </p>
         </div>
         <ul>
