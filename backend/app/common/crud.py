@@ -7,6 +7,28 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
+def _friendly_integrity_error(exc: IntegrityError) -> str:
+    error_text = str(exc.orig or exc).lower()
+
+    if "foreign key" in error_text:
+        if "canteen_id" in error_text or "canteens" in error_text:
+            return "所选餐厅不存在，请选择有效餐厅。"
+        if "stall_id" in error_text or "stalls" in error_text:
+            return "所选档口不存在，请选择有效档口。"
+        if "dish_id" in error_text or "dishes" in error_text:
+            return "所选菜品不存在，请选择有效菜品。"
+        return "所选关联资料不存在，请重新选择。"
+
+    if "unique" in error_text or "duplicate key" in error_text:
+        if "card_no" in error_text:
+            return "卡号已存在，请更换卡号。"
+        if "phone" in error_text:
+            return "手机号已存在，请更换手机号。"
+        return "编码已存在，请更换编码。"
+
+    return "资料保存失败，请检查编码和关联资料是否有效。"
+
+
 class MasterDataService:
     def __init__(self, model: type, keyword_columns: list[str]) -> None:
         self.model = model
@@ -58,7 +80,7 @@ class MasterDataService:
             return item
         except IntegrityError as exc:
             await db.rollback()
-            raise HTTPException(status_code=400, detail="Resource violates unique or foreign key constraint") from exc
+            raise HTTPException(status_code=400, detail=_friendly_integrity_error(exc)) from exc
 
     async def update_item(self, db: AsyncSession, item_id: int, payload: dict) -> Any:
         item = await self.get_item(db, item_id)
@@ -72,7 +94,7 @@ class MasterDataService:
             return item
         except IntegrityError as exc:
             await db.rollback()
-            raise HTTPException(status_code=400, detail="Resource violates unique or foreign key constraint") from exc
+            raise HTTPException(status_code=400, detail=_friendly_integrity_error(exc)) from exc
 
     async def update_status(self, db: AsyncSession, item_id: int, status: str) -> Any:
         return await self.update_item(db, item_id, {"status": status})

@@ -3,9 +3,13 @@ import { CheckCircle2, Edit3, PauseCircle, Plus, RefreshCw, Search } from 'lucid
 
 import { createRecord, fetchRecords, updateRecord, updateRecordStatus } from '../services/api.js';
 
-function formatValue(value, column) {
+function formatValue(value, column, referenceOptions = {}) {
   if (value === null || value === undefined || value === '') {
     return '-';
+  }
+  if (column.type === 'reference') {
+    const option = referenceOptions[column.referenceKey]?.find((item) => String(item.value) === String(value));
+    return option?.label || value;
   }
   if (column.type === 'money') {
     return `¥${Number(value).toFixed(2)}`;
@@ -38,6 +42,10 @@ function preparePayload(record, fields) {
       payload[field.key] = Number(value);
       return payload;
     }
+    if (field.type === 'reference') {
+      payload[field.key] = Number(value);
+      return payload;
+    }
     if (field.type === 'checkbox') {
       payload[field.key] = Boolean(value);
       return payload;
@@ -47,7 +55,7 @@ function preparePayload(record, fields) {
   }, {});
 }
 
-function RecordForm({ config, editingRecord, onCancel, onSubmit, submitting }) {
+function RecordForm({ config, editingRecord, onCancel, onSubmit, referenceErrors, referenceOptions, submitting }) {
   const [record, setRecord] = useState(() => ({ ...config.emptyRecord, ...editingRecord }));
 
   useEffect(() => {
@@ -88,6 +96,33 @@ function RecordForm({ config, editingRecord, onCancel, onSubmit, submitting }) {
                 <span>{field.label}</span>
                 <select value={value} onChange={(event) => updateField(field.key, event.target.value)}>
                   {field.options.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            );
+          }
+          if (field.type === 'reference') {
+            const reference = field.reference;
+            const options = referenceOptions[reference.referenceKey] || [];
+            const referenceError = referenceErrors[reference.referenceKey];
+            const isDisabled = Boolean(referenceError) || options.length === 0;
+
+            return (
+              <label className="form-field" key={field.key}>
+                <span>{field.label}</span>
+                <select
+                  disabled={isDisabled}
+                  required={field.required}
+                  value={value === null ? '' : String(value)}
+                  onChange={(event) => updateField(field.key, event.target.value)}
+                >
+                  <option value="">
+                    {referenceError || (options.length === 0 ? reference.emptyMessage : reference.placeholder)}
+                  </option>
+                  {options.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
@@ -140,9 +175,15 @@ export function MasterDataPage({ config }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [editingRecord, setEditingRecord] = useState(null);
+  const [referenceErrors, setReferenceErrors] = useState({});
+  const [referenceOptions, setReferenceOptions] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(data.total / data.page_size)), [data]);
+  const referenceFields = useMemo(
+    () => config.fields.filter((field) => field.type === 'reference' && field.reference),
+    [config],
+  );
 
   const loadData = async () => {
     setLoading(true);
@@ -160,6 +201,44 @@ export function MasterDataPage({ config }) {
   useEffect(() => {
     loadData();
   }, [config.endpoint, page]);
+
+  useEffect(() => {
+    const loadReferenceOptions = async () => {
+      const uniqueReferences = referenceFields.reduce((references, field) => {
+        references.set(field.reference.referenceKey, field.reference);
+        return references;
+      }, new Map());
+
+      if (uniqueReferences.size === 0) {
+        setReferenceOptions({});
+        setReferenceErrors({});
+        return;
+      }
+
+      const nextOptions = {};
+      const nextErrors = {};
+
+      await Promise.all(
+        Array.from(uniqueReferences.values()).map(async (reference) => {
+          try {
+            const result = await fetchRecords(reference.endpoint, { page: 1, pageSize: 100 });
+            nextOptions[reference.referenceKey] = result.items.map((item) => ({
+              value: item[reference.valueKey],
+              label: item[reference.labelKey],
+            }));
+          } catch (err) {
+            nextOptions[reference.referenceKey] = [];
+            nextErrors[reference.referenceKey] = reference.errorMessage;
+          }
+        }),
+      );
+
+      setReferenceOptions(nextOptions);
+      setReferenceErrors(nextErrors);
+    };
+
+    loadReferenceOptions();
+  }, [referenceFields]);
 
   const handleSearch = (event) => {
     event.preventDefault();
@@ -243,6 +322,8 @@ export function MasterDataPage({ config }) {
         <RecordForm
           config={config}
           editingRecord={editingRecord}
+          referenceErrors={referenceErrors}
+          referenceOptions={referenceOptions}
           submitting={submitting}
           onCancel={() => setEditingRecord(null)}
           onSubmit={handleSubmit}
@@ -263,7 +344,7 @@ export function MasterDataPage({ config }) {
             {data.items.map((record) => (
               <tr key={record.id}>
                 {config.columns.map((column) => (
-                  <td key={column.key}>{formatValue(record[column.key], column)}</td>
+                  <td key={column.key}>{formatValue(record[column.key], column, referenceOptions)}</td>
                 ))}
                 <td>
                   <div className="row-actions">

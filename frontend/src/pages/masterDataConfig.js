@@ -10,6 +10,26 @@ export const deviceStatusOptions = [
   { label: '故障', value: 'ERROR' },
 ];
 
+const canteenReference = {
+  referenceKey: 'canteens',
+  endpoint: '/api/v1/canteens',
+  valueKey: 'id',
+  labelKey: 'name',
+  emptyMessage: '请先维护餐厅资料',
+  errorMessage: '餐厅选项加载失败',
+  placeholder: '请选择餐厅',
+};
+
+const stallReference = {
+  referenceKey: 'stalls',
+  endpoint: '/api/v1/stalls',
+  valueKey: 'id',
+  labelKey: 'name',
+  emptyMessage: '请先维护档口资料',
+  errorMessage: '档口选项加载失败',
+  placeholder: '请选择档口',
+};
+
 export const masterDataPages = {
   canteens: {
     title: '餐厅管理',
@@ -42,7 +62,7 @@ export const masterDataPages = {
     statusOptions,
     columns: [
       { key: 'stall_code', label: '档口编码' },
-      { key: 'canteen_id', label: '餐厅 ID' },
+      { key: 'canteen_id', label: '餐厅', type: 'reference', referenceKey: 'canteens' },
       { key: 'name', label: '档口名称' },
       { key: 'category', label: '品类' },
       { key: 'floor', label: '楼层' },
@@ -50,7 +70,7 @@ export const masterDataPages = {
     ],
     fields: [
       { key: 'stall_code', label: '档口编码', required: true },
-      { key: 'canteen_id', label: '餐厅 ID', type: 'number', required: true },
+      { key: 'canteen_id', label: '餐厅', type: 'reference', reference: canteenReference, required: true },
       { key: 'name', label: '档口名称', required: true },
       { key: 'category', label: '品类', required: true },
       { key: 'floor', label: '楼层' },
@@ -67,7 +87,7 @@ export const masterDataPages = {
     statusOptions,
     columns: [
       { key: 'dish_code', label: '菜品编码' },
-      { key: 'stall_id', label: '档口 ID' },
+      { key: 'stall_id', label: '档口', type: 'reference', referenceKey: 'stalls' },
       { key: 'name', label: '菜品名称' },
       { key: 'category', label: '品类' },
       { key: 'unit_price', label: '单价', type: 'money' },
@@ -76,7 +96,7 @@ export const masterDataPages = {
     ],
     fields: [
       { key: 'dish_code', label: '菜品编码', required: true },
-      { key: 'stall_id', label: '档口 ID', type: 'number', required: true },
+      { key: 'stall_id', label: '档口', type: 'reference', reference: stallReference, required: true },
       { key: 'name', label: '菜品名称', required: true },
       { key: 'category', label: '品类', required: true },
       { key: 'unit_price', label: '单价', type: 'number', step: '0.01', required: true },
@@ -94,14 +114,14 @@ export const masterDataPages = {
     statusOptions,
     columns: [
       { key: 'package_code', label: '套餐编码' },
-      { key: 'stall_id', label: '档口 ID' },
+      { key: 'stall_id', label: '档口', type: 'reference', referenceKey: 'stalls' },
       { key: 'name', label: '套餐名称' },
       { key: 'package_price', label: '套餐价', type: 'money' },
       { key: 'status', label: '状态', type: 'status' },
     ],
     fields: [
       { key: 'package_code', label: '套餐编码', required: true },
-      { key: 'stall_id', label: '档口 ID', type: 'number', required: true },
+      { key: 'stall_id', label: '档口', type: 'reference', reference: stallReference, required: true },
       { key: 'name', label: '套餐名称', required: true },
       { key: 'package_price', label: '套餐价', type: 'number', step: '0.01', required: true },
       { key: 'status', label: '状态', type: 'select', options: statusOptions },
@@ -178,16 +198,16 @@ export const masterDataPages = {
     columns: [
       { key: 'device_code', label: '设备编码' },
       { key: 'device_name', label: '设备名称' },
-      { key: 'canteen_id', label: '餐厅 ID' },
-      { key: 'stall_id', label: '档口 ID' },
+      { key: 'canteen_id', label: '餐厅', type: 'reference', referenceKey: 'canteens' },
+      { key: 'stall_id', label: '档口', type: 'reference', referenceKey: 'stalls' },
       { key: 'device_type', label: '设备类型' },
       { key: 'status', label: '状态', type: 'status' },
     ],
     fields: [
       { key: 'device_code', label: '设备编码', required: true },
       { key: 'device_name', label: '设备名称', required: true },
-      { key: 'canteen_id', label: '餐厅 ID', type: 'number', required: true },
-      { key: 'stall_id', label: '档口 ID', type: 'number' },
+      { key: 'canteen_id', label: '餐厅', type: 'reference', reference: canteenReference, required: true },
+      { key: 'stall_id', label: '档口', type: 'reference', reference: { ...stallReference, placeholder: '不绑定档口' } },
       {
         key: 'device_type',
         label: '设备类型',
