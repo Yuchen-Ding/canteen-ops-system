@@ -62,3 +62,18 @@ QA 环境建议部署在阿里云或华为云 Ubuntu 服务器中：
 阶段 0 不创建完整业务模型，不实现订单、支付、退款、补贴或报表逻辑。数据库仅包含系统版本和迁移记录基础表。
 
 阶段 1 只实现主数据管理，不实现订单、支付、退款、补贴、报表或 AI。
+
+## 阶段 2 交易关系
+
+阶段 2 新增订单、订单明细和支付流水，交易数据与阶段 1 主数据建立引用关系：
+
+- `orders.canteen_id` 引用 `canteens.id`。
+- `orders.stall_id` 引用 `stalls.id`。
+- `orders.device_id` 引用 `devices.id`。
+- 员工消费时 `orders.employee_id` 引用 `employees.id`，`customer_type` 为 `EMPLOYEE`。
+- 访客消费时 `orders.visitor_id` 可引用 `visitors.id`，也可以保存 `visitor_name_snapshot`。
+- `order_items.order_id` 引用 `orders.id`。
+- `order_items.dish_id` 可引用 `dishes.id`，同时保存菜品名称和价格快照。
+- `payments.order_id` 引用 `orders.id`，阶段 2 一个订单只生成一条支付流水。
+
+交易写入由 `backend/app/modules/pos` 负责，查询由 `orders` 和 `payments` 模块负责。阶段 2 仍然不接真实支付接口和真实刷卡硬件，支付结果由 mock 逻辑默认置为成功。

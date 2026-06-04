@@ -51,6 +51,18 @@
 | devices | PUT | `/api/v1/devices/{id}` | 编辑 POS 设备 |
 | devices | PATCH | `/api/v1/devices/{id}/status` | 更新 POS 设备状态 |
 
+## 阶段 2 交易 API
+
+| Resource | Method | Path | 说明 |
+| --- | --- | --- | --- |
+| pos | POST | `/api/v1/pos/employee-card-payment` | 员工刷卡消费模拟 |
+| pos | POST | `/api/v1/pos/visitor-qr-payment` | 访客扫码消费模拟 |
+| orders | GET | `/api/v1/orders` | 订单列表，支持客户类型、支付状态、订单状态、餐厅、档口和时间过滤 |
+| orders | GET | `/api/v1/orders/{id}` | 订单详情，返回订单、明细和支付记录 |
+| payments | GET | `/api/v1/payments` | 支付流水列表，支持支付方式、支付状态和时间过滤 |
+
+阶段 2 的支付均为 mock 支付，不调用真实支付宝、微信、银行卡或刷卡硬件接口。
+
 ## 命名约束
 
 - API 路径统一使用英文。

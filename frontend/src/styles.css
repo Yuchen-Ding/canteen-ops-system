@@ -439,6 +439,72 @@ tr:last-child td {
   font-size: 14px;
 }
 
+.line-items {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #e8eef6;
+}
+
+.line-item-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(120px, 0.4fr) 40px;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 12px;
+}
+
+.line-remove {
+  margin-bottom: 1px;
+}
+
+.payment-summary {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e8eef6;
+}
+
+.payment-summary strong {
+  color: #102a43;
+  font-size: 18px;
+}
+
+.result-panel {
+  margin-bottom: 16px;
+  padding: 18px;
+  border: 1px solid #b8e1cf;
+  border-radius: 8px;
+  color: #164b35;
+  background: #effaf4;
+}
+
+.result-panel h3 {
+  margin-bottom: 10px;
+}
+
+.result-panel p {
+  margin-bottom: 6px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+  color: #53657c;
+}
+
+.compact-table {
+  margin-bottom: 0;
+}
+
+.compact-table table {
+  min-width: 520px;
+}
+
 @media (max-width: 1100px) {
   .status-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -491,5 +557,15 @@ tr:last-child td {
 
   .form-grid {
     grid-template-columns: 1fr;
+  }
+
+  .line-item-row,
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-summary {
+    align-items: stretch;
+    flex-direction: column;
   }
 }

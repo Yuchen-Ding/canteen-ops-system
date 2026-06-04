@@ -5,6 +5,9 @@ import { navigationItems, Sidebar } from './components/Sidebar.jsx';
 import { Dashboard } from './pages/Dashboard.jsx';
 import { MasterDataPage } from './pages/MasterDataPage.jsx';
 import { masterDataPages } from './pages/masterDataConfig.js';
+import { OrdersPage } from './pages/OrdersPage.jsx';
+import { PaymentsPage } from './pages/PaymentsPage.jsx';
+import { PosPaymentPage } from './pages/PosPaymentPage.jsx';
 
 export function App() {
   const [activePage, setActivePage] = useState('dashboard');
@@ -19,6 +22,18 @@ export function App() {
     }
     if (masterDataPages[activePage]) {
       return <MasterDataPage config={masterDataPages[activePage]} />;
+    }
+    if (activePage === 'employeeCardPayment') {
+      return <PosPaymentPage mode="employee" />;
+    }
+    if (activePage === 'visitorQrPayment') {
+      return <PosPaymentPage mode="visitor" />;
+    }
+    if (activePage === 'orders') {
+      return <OrdersPage />;
+    }
+    if (activePage === 'payments') {
+      return <PaymentsPage />;
     }
     return <Dashboard />;
   };

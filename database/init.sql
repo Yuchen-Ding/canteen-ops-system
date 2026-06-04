@@ -138,3 +138,75 @@ create index if not exists idx_devices_stall_id on canteen_ops.devices(stall_id)
 insert into canteen_ops.migration_history (version, description)
 values ('0002', 'stage 1 master data schema')
 on conflict (version) do nothing;
+
+create table if not exists canteen_ops.orders (
+    id bigserial primary key,
+    order_no varchar(60) not null unique,
+    canteen_id bigint not null references canteen_ops.canteens(id),
+    stall_id bigint not null references canteen_ops.stalls(id),
+    device_id bigint not null references canteen_ops.devices(id),
+    customer_type varchar(30) not null,
+    employee_id bigint references canteen_ops.employees(id),
+    visitor_id bigint references canteen_ops.visitors(id),
+    visitor_name_snapshot varchar(120),
+    meal_type varchar(30) not null,
+    original_amount numeric(12, 2) not null,
+    discount_amount numeric(12, 2) not null default 0,
+    subsidy_amount numeric(12, 2) not null default 0,
+    payable_amount numeric(12, 2) not null,
+    payment_status varchar(30) not null default 'PENDING',
+    order_status varchar(30) not null default 'CREATED',
+    transaction_time timestamptz not null default now(),
+    operator varchar(120),
+    remark varchar(500),
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now(),
+    constraint chk_orders_customer_ref check (
+        (customer_type = 'EMPLOYEE' and employee_id is not null and visitor_id is null)
+        or
+        (customer_type = 'VISITOR' and employee_id is null)
+    ),
+    constraint chk_orders_amount check (payable_amount = original_amount - discount_amount - subsidy_amount)
+);
+
+create table if not exists canteen_ops.order_items (
+    id bigserial primary key,
+    order_id bigint not null references canteen_ops.orders(id),
+    dish_id bigint references canteen_ops.dishes(id),
+    item_type varchar(30) not null,
+    item_name_snapshot varchar(120) not null,
+    quantity integer not null,
+    unit_price numeric(12, 2) not null,
+    amount numeric(12, 2) not null,
+    created_at timestamptz not null default now(),
+    constraint chk_order_items_quantity check (quantity > 0),
+    constraint chk_order_items_amount check (amount = quantity * unit_price)
+);
+
+create table if not exists canteen_ops.payments (
+    id bigserial primary key,
+    payment_no varchar(60) not null unique,
+    order_id bigint not null unique references canteen_ops.orders(id),
+    payment_method varchar(30) not null,
+    payment_amount numeric(12, 2) not null,
+    payment_status varchar(30) not null default 'PENDING',
+    paid_at timestamptz,
+    failure_reason varchar(500),
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now()
+);
+
+create index if not exists idx_orders_canteen_id on canteen_ops.orders(canteen_id);
+create index if not exists idx_orders_stall_id on canteen_ops.orders(stall_id);
+create index if not exists idx_orders_device_id on canteen_ops.orders(device_id);
+create index if not exists idx_orders_employee_id on canteen_ops.orders(employee_id);
+create index if not exists idx_orders_visitor_id on canteen_ops.orders(visitor_id);
+create index if not exists idx_orders_transaction_time on canteen_ops.orders(transaction_time);
+create index if not exists idx_order_items_order_id on canteen_ops.order_items(order_id);
+create index if not exists idx_order_items_dish_id on canteen_ops.order_items(dish_id);
+create index if not exists idx_payments_order_id on canteen_ops.payments(order_id);
+create index if not exists idx_payments_paid_at on canteen_ops.payments(paid_at);
+
+insert into canteen_ops.migration_history (version, description)
+values ('0003', 'stage 2 transaction baseline schema')
+on conflict (version) do nothing;

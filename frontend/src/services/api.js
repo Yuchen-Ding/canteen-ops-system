@@ -21,7 +21,7 @@ export async function fetchSystemInfo() {
   return request('/api/v1/system/info');
 }
 
-export async function fetchRecords(endpoint, { keyword = '', status = '', page = 1, pageSize = 20 } = {}) {
+export async function fetchRecords(endpoint, { keyword = '', status = '', page = 1, pageSize = 20, ...filters } = {}) {
   const params = new URLSearchParams({
     page: String(page),
     page_size: String(pageSize),
@@ -32,7 +32,16 @@ export async function fetchRecords(endpoint, { keyword = '', status = '', page =
   if (status) {
     params.set('status', status);
   }
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== '' && value !== null && value !== undefined) {
+      params.set(key, String(value));
+    }
+  });
   return request(`${endpoint}?${params.toString()}`);
+}
+
+export async function fetchRecordDetail(endpoint, id) {
+  return request(`${endpoint}/${id}`);
 }
 
 export async function createRecord(endpoint, payload) {
