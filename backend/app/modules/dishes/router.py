@@ -1,5 +1,5 @@
 from app.common.router_factory import create_crud_router
-from app.modules.dishes.schema import DishCreate, DishStatusUpdate, DishUpdate
+from app.modules.dishes.schema import DishCreate, DishRead, DishStatusUpdate, DishUpdate
 from app.modules.dishes.service import dish_service
 
 
@@ -10,4 +10,5 @@ router = create_crud_router(
     create_schema=DishCreate,
     update_schema=DishUpdate,
     status_schema=DishStatusUpdate,
+    read_schema=DishRead,
 )

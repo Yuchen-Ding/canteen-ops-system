@@ -1,5 +1,5 @@
 from app.common.router_factory import create_crud_router
-from app.modules.employees.schema import EmployeeCreate, EmployeeStatusUpdate, EmployeeUpdate
+from app.modules.employees.schema import EmployeeCreate, EmployeeRead, EmployeeStatusUpdate, EmployeeUpdate
 from app.modules.employees.service import employee_service
 
 
@@ -10,4 +10,5 @@ router = create_crud_router(
     create_schema=EmployeeCreate,
     update_schema=EmployeeUpdate,
     status_schema=EmployeeStatusUpdate,
+    read_schema=EmployeeRead,
 )

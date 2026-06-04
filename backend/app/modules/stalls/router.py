@@ -1,5 +1,5 @@
 from app.common.router_factory import create_crud_router
-from app.modules.stalls.schema import StallCreate, StallStatusUpdate, StallUpdate
+from app.modules.stalls.schema import StallCreate, StallRead, StallStatusUpdate, StallUpdate
 from app.modules.stalls.service import stall_service
 
 
@@ -10,4 +10,5 @@ router = create_crud_router(
     create_schema=StallCreate,
     update_schema=StallUpdate,
     status_schema=StallStatusUpdate,
+    read_schema=StallRead,
 )
