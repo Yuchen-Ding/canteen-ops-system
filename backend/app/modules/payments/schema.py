@@ -5,7 +5,7 @@ from typing import Literal
 from pydantic import BaseModel
 
 PaymentMethod = Literal["EMPLOYEE_CARD", "VISITOR_QR", "CASH", "MOCK_ALIPAY", "MOCK_WECHAT"]
-PaymentStatus = Literal["PENDING", "PAID", "FAILED"]
+PaymentStatus = Literal["PENDING", "PAID", "FAILED", "REFUNDED"]
 
 
 class PaymentRead(BaseModel):

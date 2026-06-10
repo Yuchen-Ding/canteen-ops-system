@@ -210,3 +210,28 @@ create index if not exists idx_payments_paid_at on canteen_ops.payments(paid_at)
 insert into canteen_ops.migration_history (version, description)
 values ('0003', 'stage 2 transaction baseline schema')
 on conflict (version) do nothing;
+
+create table if not exists canteen_ops.refunds (
+    id bigserial primary key,
+    refund_no varchar(60) not null unique,
+    order_id bigint not null unique references canteen_ops.orders(id),
+    payment_id bigint not null unique references canteen_ops.payments(id),
+    refund_amount numeric(12, 2) not null,
+    refund_reason varchar(500) not null,
+    refund_status varchar(30) not null default 'PENDING',
+    requested_by varchar(120) not null,
+    refunded_at timestamptz,
+    failure_reason varchar(500),
+    remark varchar(500),
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now(),
+    constraint chk_refunds_amount check (refund_amount > 0)
+);
+
+create index if not exists idx_refunds_status on canteen_ops.refunds(refund_status);
+create index if not exists idx_refunds_created_at on canteen_ops.refunds(created_at);
+create index if not exists idx_refunds_refunded_at on canteen_ops.refunds(refunded_at);
+
+insert into canteen_ops.migration_history (version, description)
+values ('0004', 'stage 3 refund and reporting baseline')
+on conflict (version) do nothing;

@@ -63,6 +63,19 @@
 
 阶段 2 的支付均为 mock 支付，不调用真实支付宝、微信、银行卡或刷卡硬件接口。
 
+## 阶段 3 退款与报表 API
+
+| Resource | Method | Path | 说明 |
+| --- | --- | --- | --- |
+| refunds | POST | `/api/v1/orders/{id}/refund` | 对已支付完成订单执行全额 mock 退款 |
+| refunds | GET | `/api/v1/refunds` | 退款列表，支持状态、时间和退款号/订单号过滤 |
+| refunds | GET | `/api/v1/refunds/{id}` | 退款详情 |
+| reports | GET | `/api/v1/reports/dashboard` | 今日运营看板 |
+| reports | GET | `/api/v1/reports/daily?report_date=YYYY-MM-DD` | 指定日期运营日报 |
+| reports | GET | `/api/v1/reports/monthly?month=YYYY-MM` | 指定月份运营月报 |
+
+退款状态使用 `PENDING`、`SUCCESS`、`FAILED`。阶段 3 mock 退款默认直接进入 `SUCCESS`。
+
 ## 命名约束
 
 - API 路径统一使用英文。

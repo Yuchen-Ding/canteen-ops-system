@@ -77,3 +77,35 @@ QA 环境建议部署在阿里云或华为云 Ubuntu 服务器中：
 - `payments.order_id` 引用 `orders.id`，阶段 2 一个订单只生成一条支付流水。
 
 交易写入由 `backend/app/modules/pos` 负责，查询由 `orders` 和 `payments` 模块负责。阶段 2 仍然不接真实支付接口和真实刷卡硬件，支付结果由 mock 逻辑默认置为成功。
+
+## 阶段 3 退款关系
+
+- `refunds.order_id` 唯一引用 `orders.id`，限制一个订单只能生成一条全额退款记录。
+- `refunds.payment_id` 唯一引用 `payments.id`。
+- 退款服务使用订单行锁和支付流水行锁，降低并发重复退款风险。
+- 退款成功后：
+  - `orders.order_status = REFUNDED`
+  - `orders.payment_status = REFUNDED`
+  - `payments.payment_status = REFUNDED`
+  - `refunds.refund_status = SUCCESS`
+
+阶段 3 不调用 Payment Adapter 的真实渠道退款能力，只执行本地 mock 状态流转。
+
+## 阶段 3 报表结构
+
+`backend/app/modules/reports` 不拥有独立报表表，直接使用 PostgreSQL SQL 聚合：
+
+- 订单指标来自 `orders`。
+- 菜品排行来自 `order_items`。
+- 退款金额来自状态为 `SUCCESS` 的 `refunds`。
+- 餐厅和档口维度来自 `canteens`、`stalls`。
+
+日报按 Asia/Shanghai 自然日统计，月报按自然月统计。
+
+报表口径：
+
+- `revenue`：周期内完成或已退款、且曾成功支付的订单应付金额。
+- `refund_amount`：周期内成功退款记录的退款金额。
+- `net_revenue = revenue - refund_amount`。
+
+这种结构为后续 AI 日报和月报提供结构化数据，但阶段 3 不实现任何 AI 功能。

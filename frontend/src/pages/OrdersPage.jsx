@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Eye, RefreshCw } from 'lucide-react';
+import { Eye, RefreshCw, RotateCcw } from 'lucide-react';
 
-import { fetchRecordDetail, fetchRecords } from '../services/api.js';
+import { createRecord, fetchRecordDetail, fetchRecords } from '../services/api.js';
 
 const customerTypeOptions = [
   { label: '员工', value: 'EMPLOYEE' },
@@ -35,6 +35,9 @@ export function OrdersPage() {
   const [page, setPage] = useState(1);
   const [data, setData] = useState({ items: [], total: 0, page: 1, page_size: 20 });
   const [detail, setDetail] = useState(null);
+  const [refundOrder, setRefundOrder] = useState(null);
+  const [refundForm, setRefundForm] = useState({ refund_reason: '', requested_by: '', remark: '' });
+  const [submittingRefund, setSubmittingRefund] = useState(false);
   const [error, setError] = useState('');
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(data.total / data.page_size)), [data]);
@@ -65,6 +68,23 @@ export function OrdersPage() {
       setDetail(await fetchRecordDetail('/api/v1/orders', orderId));
     } catch (err) {
       setError(err.message || '订单详情加载失败');
+    }
+  };
+
+  const submitRefund = async (event) => {
+    event.preventDefault();
+    setSubmittingRefund(true);
+    setError('');
+    try {
+      await createRecord(`/api/v1/orders/${refundOrder.id}/refund`, refundForm);
+      setRefundOrder(null);
+      setRefundForm({ refund_reason: '', requested_by: '', remark: '' });
+      setDetail(null);
+      await loadOrders();
+    } catch (err) {
+      setError(err.message || '退款失败');
+    } finally {
+      setSubmittingRefund(false);
     }
   };
 
@@ -103,6 +123,46 @@ export function OrdersPage() {
       </div>
 
       {error ? <div className="error-banner">{error}</div> : null}
+
+      {refundOrder ? (
+        <form className="record-form" onSubmit={submitRefund}>
+          <div className="form-heading">
+            <h3>订单退款：{refundOrder.order_no}</h3>
+            <button className="text-button" type="button" onClick={() => setRefundOrder(null)}>取消</button>
+          </div>
+          <p>本阶段只支持全额退款，退款金额为 {money(refundOrder.payable_amount)}。</p>
+          <div className="form-grid">
+            <label className="form-field">
+              <span>退款原因</span>
+              <input
+                required
+                value={refundForm.refund_reason}
+                onChange={(event) => setRefundForm({ ...refundForm, refund_reason: event.target.value })}
+              />
+            </label>
+            <label className="form-field">
+              <span>申请人</span>
+              <input
+                required
+                value={refundForm.requested_by}
+                onChange={(event) => setRefundForm({ ...refundForm, requested_by: event.target.value })}
+              />
+            </label>
+            <label className="form-field wide">
+              <span>备注</span>
+              <textarea
+                value={refundForm.remark}
+                onChange={(event) => setRefundForm({ ...refundForm, remark: event.target.value })}
+              />
+            </label>
+          </div>
+          <div className="form-actions">
+            <button className="primary-button" disabled={submittingRefund} type="submit">
+              {submittingRefund ? '退款处理中' : '确认全额退款'}
+            </button>
+          </div>
+        </form>
+      ) : null}
 
       {detail ? (
         <div className="record-form">
@@ -171,6 +231,11 @@ export function OrdersPage() {
                   <button className="icon-button" title="查看详情" type="button" onClick={() => showDetail(order.id)}>
                     <Eye size={16} />
                   </button>
+                  {order.payment_status === 'PAID' && order.order_status === 'COMPLETED' ? (
+                    <button className="icon-button" title="退款" type="button" onClick={() => setRefundOrder(order)}>
+                      <RotateCcw size={16} />
+                    </button>
+                  ) : null}
                 </td>
               </tr>
             ))}

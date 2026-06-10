@@ -15,6 +15,7 @@ const paymentStatusOptions = [
   { label: '待支付', value: 'PENDING' },
   { label: '已支付', value: 'PAID' },
   { label: '失败', value: 'FAILED' },
+  { label: '已退款', value: 'REFUNDED' },
 ];
 
 function labelOf(options, value) {

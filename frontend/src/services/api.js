@@ -44,6 +44,17 @@ export async function fetchRecordDetail(endpoint, id) {
   return request(`${endpoint}/${id}`);
 }
 
+export async function fetchReport(endpoint, params = {}) {
+  const searchParams = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== '' && value !== null && value !== undefined) {
+      searchParams.set(key, String(value));
+    }
+  });
+  const query = searchParams.toString();
+  return request(`${endpoint}${query ? `?${query}` : ''}`);
+}
+
 export async function createRecord(endpoint, payload) {
   return request(endpoint, {
     method: 'POST',

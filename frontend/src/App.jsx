@@ -8,6 +8,8 @@ import { masterDataPages } from './pages/masterDataConfig.js';
 import { OrdersPage } from './pages/OrdersPage.jsx';
 import { PaymentsPage } from './pages/PaymentsPage.jsx';
 import { PosPaymentPage } from './pages/PosPaymentPage.jsx';
+import { RefundsPage } from './pages/RefundsPage.jsx';
+import { ReportsPage } from './pages/ReportsPage.jsx';
 
 export function App() {
   const [activePage, setActivePage] = useState('dashboard');
@@ -35,6 +37,15 @@ export function App() {
     if (activePage === 'payments') {
       return <PaymentsPage />;
     }
+    if (activePage === 'refunds') {
+      return <RefundsPage />;
+    }
+    if (activePage === 'dailyReport') {
+      return <ReportsPage mode="daily" />;
+    }
+    if (activePage === 'monthlyReport') {
+      return <ReportsPage mode="monthly" />;
+    }
     return <Dashboard />;
   };
 
@@ -44,12 +55,12 @@ export function App() {
       <main className="main-content">
         <header className="topbar">
           <div>
-            <p className="eyebrow">阶段 1 主数据管理</p>
+            <p className="eyebrow">阶段 3 退款与运营报表</p>
             <h1>{activePage === 'dashboard' ? '企业餐厅运营管理系统' : activeNav.label}</h1>
           </div>
           <div className="environment-pill">
             <LayoutDashboard size={18} />
-            <span>阶段 1</span>
+            <span>阶段 3</span>
           </div>
         </header>
         {renderPage()}

@@ -1,0 +1,25 @@
+from decimal import Decimal
+
+from sqlalchemy import BigInteger, DateTime, ForeignKey, Numeric, String, func
+from sqlalchemy.orm import Mapped, mapped_column
+
+from app.common.models import Base
+
+
+class Refund(Base):
+    __tablename__ = "refunds"
+    __table_args__ = {"schema": "canteen_ops"}
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    refund_no: Mapped[str] = mapped_column(String(60), unique=True, nullable=False)
+    order_id: Mapped[int] = mapped_column(ForeignKey("canteen_ops.orders.id"), unique=True, nullable=False)
+    payment_id: Mapped[int] = mapped_column(ForeignKey("canteen_ops.payments.id"), unique=True, nullable=False)
+    refund_amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    refund_reason: Mapped[str] = mapped_column(String(500), nullable=False)
+    refund_status: Mapped[str] = mapped_column(String(30), nullable=False, default="PENDING")
+    requested_by: Mapped[str] = mapped_column(String(120), nullable=False)
+    refunded_at: Mapped[object | None] = mapped_column(DateTime(timezone=True))
+    failure_reason: Mapped[str | None] = mapped_column(String(500))
+    remark: Mapped[str | None] = mapped_column(String(500))
+    created_at: Mapped[object] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at: Mapped[object] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
