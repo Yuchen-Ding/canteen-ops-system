@@ -31,6 +31,9 @@ services:
       DATABASE_URL: ${DATABASE_URL:-postgresql://canteen_user:canteen_password@postgres:5432/canteen_ops}
       AI_PROVIDER: ${AI_PROVIDER:-mock}
       AI_API_KEY: ${AI_API_KEY:-}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL:-https://api.deepseek.com}
+      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-deepseek-chat}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
       CORS_ORIGINS_RAW: ${CORS_ORIGINS_RAW:-http://localhost:3100}
     ports:

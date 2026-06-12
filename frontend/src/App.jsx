@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import { LayoutDashboard } from 'lucide-react';
 
+import { AiAssistantWidget } from './components/AiAssistantWidget.jsx';
 import { navigationItems, Sidebar } from './components/Sidebar.jsx';
+import { CanteenMonitoringPage } from './pages/CanteenMonitoringPage.jsx';
 import { Dashboard } from './pages/Dashboard.jsx';
 import { MasterDataPage } from './pages/MasterDataPage.jsx';
 import { masterDataPages } from './pages/masterDataConfig.js';
@@ -40,11 +42,11 @@ export function App() {
     if (activePage === 'refunds') {
       return <RefundsPage />;
     }
-    if (activePage === 'dailyReport') {
-      return <ReportsPage mode="daily" />;
+    if (activePage === 'reports') {
+      return <ReportsPage />;
     }
-    if (activePage === 'monthlyReport') {
-      return <ReportsPage mode="monthly" />;
+    if (activePage === 'canteenMonitoring') {
+      return <CanteenMonitoringPage />;
     }
     return <Dashboard />;
   };
@@ -55,16 +57,17 @@ export function App() {
       <main className="main-content">
         <header className="topbar">
           <div>
-            <p className="eyebrow">阶段 3 退款与运营报表</p>
+            <p className="eyebrow">阶段 4 监控、报表中心与 AI 助手</p>
             <h1>{activePage === 'dashboard' ? '企业餐厅运营管理系统' : activeNav.label}</h1>
           </div>
           <div className="environment-pill">
             <LayoutDashboard size={18} />
-            <span>阶段 3</span>
+            <span>阶段 4</span>
           </div>
         </header>
         {renderPage()}
       </main>
+      <AiAssistantWidget />
     </div>
   );
 }

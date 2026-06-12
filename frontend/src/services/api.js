@@ -55,6 +55,25 @@ export async function fetchReport(endpoint, params = {}) {
   return request(`${endpoint}${query ? `?${query}` : ''}`);
 }
 
+export async function getCanteenMonitoringOverview() {
+  return request('/api/v1/monitoring/canteen-overview');
+}
+
+export async function getYearlyReport(year) {
+  return fetchReport('/api/v1/reports/yearly', { year });
+}
+
+export async function getLatestAiSession() {
+  return request('/api/v1/ai/sessions/latest');
+}
+
+export async function sendAiChatMessage(sessionId, message) {
+  return request('/api/v1/ai/chat', {
+    method: 'POST',
+    body: JSON.stringify({ session_id: sessionId, message }),
+  });
+}
+
 export async function createRecord(endpoint, payload) {
   return request(endpoint, {
     method: 'POST',

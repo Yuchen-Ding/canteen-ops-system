@@ -1,11 +1,13 @@
 from fastapi import APIRouter
 
 from app.api.v1 import system
+from app.modules.ai.router import router as ai_router
 from app.modules.canteens.router import router as canteen_router
 from app.modules.devices.router import router as device_router
 from app.modules.dishes.router import router as dish_router
 from app.modules.employees.router import router as employee_router
 from app.modules.meal_packages.router import router as meal_package_router
+from app.modules.monitoring.router import router as monitoring_router
 from app.modules.orders.router import router as order_router
 from app.modules.payments.router import router as payment_router
 from app.modules.pos.router import router as pos_router
@@ -28,3 +30,5 @@ api_router.include_router(order_router)
 api_router.include_router(payment_router)
 api_router.include_router(refund_router)
 api_router.include_router(report_router)
+api_router.include_router(monitoring_router)
+api_router.include_router(ai_router)

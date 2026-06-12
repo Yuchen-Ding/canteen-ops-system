@@ -46,6 +46,15 @@ def parse_report_date(value: str) -> date:
         raise HTTPException(status_code=400, detail="报表日期格式错误，请使用 YYYY-MM-DD。") from exc
 
 
+def _year_range(year: str) -> tuple[int, datetime, datetime]:
+    if not re.fullmatch(r"\d{4}", year):
+        raise HTTPException(status_code=400, detail="报表年份格式错误，请使用 YYYY。")
+    year_value = int(year)
+    start = datetime(year_value, 1, 1, tzinfo=REPORT_TIMEZONE)
+    end = datetime(year_value + 1, 1, 1, tzinfo=REPORT_TIMEZONE)
+    return year_value, start, end
+
+
 def _order_time_filters(start: datetime, end: datetime) -> tuple:
     return (
         Order.transaction_time >= start,
@@ -243,6 +252,65 @@ async def get_monthly_report(db: AsyncSession, month: str) -> dict:
                         Order.customer_type == "VISITOR",
                     )
                 ),
+            },
+        }
+    )
+
+
+async def get_yearly_report(db: AsyncSession, year: str) -> dict:
+    year_value, start, end = _year_range(year)
+    report = await _build_report(db, start, end)
+    employee_revenue = await db.scalar(
+        select(func.coalesce(func.sum(Order.payable_amount), 0)).where(
+            *_order_time_filters(start, end),
+            Order.customer_type == "EMPLOYEE",
+        )
+    )
+    visitor_revenue = await db.scalar(
+        select(func.coalesce(func.sum(Order.payable_amount), 0)).where(
+            *_order_time_filters(start, end),
+            Order.customer_type == "VISITOR",
+        )
+    )
+
+    revenue_by_month = []
+    for month_number in range(1, 13):
+        month_start = datetime(year_value, month_number, 1, tzinfo=REPORT_TIMEZONE)
+        month_end = (
+            datetime(year_value + 1, 1, 1, tzinfo=REPORT_TIMEZONE)
+            if month_number == 12
+            else datetime(year_value, month_number + 1, 1, tzinfo=REPORT_TIMEZONE)
+        )
+        month_orders = await _order_summary(db, month_start, month_end)
+        month_refunds = await _refund_summary(db, month_start, month_end)
+        revenue_by_month.append(
+            {
+                "month": f"{year_value}-{month_number:02d}",
+                "order_count": month_orders["order_count"],
+                "revenue": month_orders["revenue"],
+                "refund_amount": month_refunds["refund_amount"],
+                "net_revenue": month_orders["revenue"] - month_refunds["refund_amount"],
+            }
+        )
+
+    return jsonable_encoder(
+        {
+            "year": str(year_value),
+            "year_order_count": report["order_count"],
+            "year_revenue": report["revenue"],
+            "year_refund_amount": report["refund_amount"],
+            "year_net_revenue": report["net_revenue"],
+            "revenue_by_month": revenue_by_month,
+            "revenue_by_canteen": report["revenue_by_canteen"],
+            "revenue_by_stall": report["revenue_by_stall"],
+            "top_dishes": report["top_dishes"],
+            "employee_consumption_summary": {
+                "order_count": report["employee_orders"],
+                "revenue": employee_revenue,
+            },
+            "visitor_consumption_summary": {
+                "order_count": report["visitor_orders"],
+                "revenue": visitor_revenue,
             },
         }
     )

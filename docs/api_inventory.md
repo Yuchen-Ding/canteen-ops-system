@@ -76,6 +76,17 @@
 
 退款状态使用 `PENDING`、`SUCCESS`、`FAILED`。阶段 3 mock 退款默认直接进入 `SUCCESS`。
 
+## 阶段 4 监控、年报与 AI API
+
+| Resource | Method | Path | 说明 |
+| --- | --- | --- | --- |
+| monitoring | GET | `/api/v1/monitoring/canteen-overview` | 食堂基础规模、状态、今日业务和基础列表 |
+| reports | GET | `/api/v1/reports/yearly?year=YYYY` | 年度运营报表 |
+| ai | GET | `/api/v1/ai/sessions/latest` | 获取或创建最近 AI 会话及消息 |
+| ai | POST | `/api/v1/ai/chat` | 基于固定结构化运营上下文调用 DeepSeek |
+
+AI 接口不接受 SQL，也不提供业务数据写入能力。
+
 ## 命名约束
 
 - API 路径统一使用英文。

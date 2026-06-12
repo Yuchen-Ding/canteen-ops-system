@@ -1,8 +1,6 @@
 import {
   BadgeDollarSign,
-  CalendarDays,
-  CalendarRange,
-  Bot,
+  BarChart3,
   Building2,
   ClipboardList,
   CreditCard,
@@ -35,10 +33,8 @@ export const navigationItems = [
   { key: 'payments', label: '支付流水', icon: BadgeDollarSign },
   { key: 'refunds', label: '退款管理', icon: RefreshCcw },
   { key: 'subsidyRules', label: '补贴规则', icon: ShieldCheck, disabled: true },
-  { key: 'dailyReport', label: '运营日报', icon: CalendarDays },
-  { key: 'monthlyReport', label: '运营月报', icon: CalendarRange },
-  { key: 'deviceMonitoring', label: '设备监控', icon: Monitor, disabled: true },
-  { key: 'aiSummary', label: 'AI 运营总结', icon: Bot, disabled: true },
+  { key: 'reports', label: '报表中心', icon: BarChart3 },
+  { key: 'canteenMonitoring', label: '食堂基础监控', icon: Monitor },
   { key: 'settings', label: '系统设置', icon: Settings, disabled: true },
 ];
 

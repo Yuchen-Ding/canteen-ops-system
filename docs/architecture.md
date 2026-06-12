@@ -109,3 +109,21 @@ QA 环境建议部署在阿里云或华为云 Ubuntu 服务器中：
 - `net_revenue = revenue - refund_amount`。
 
 这种结构为后续 AI 日报和月报提供结构化数据，但阶段 3 不实现任何 AI 功能。
+
+## 阶段 4 基础监控
+
+`backend/app/modules/monitoring` 使用固定 SQLAlchemy 聚合查询主数据和状态，并复用 dashboard 报表服务获取今日业务指标。该模块不接入闸机、人流或真实设备心跳。
+
+## 阶段 4 报表中心
+
+前端将日报和月报合并为报表中心，支持日、月、年切换。后端年度报表按 Asia/Shanghai 自然年聚合，并返回十二个月的收入、退款和净收入趋势。
+
+## 阶段 4 AI 助手
+
+- `ai_chat_sessions` 保存会话。
+- `ai_chat_messages` 保存 USER、ASSISTANT、SYSTEM 消息。
+- `provider.py` 使用 `httpx` 调用 DeepSeek OpenAI-compatible chat completions API。
+- API Key 只从 `DEEPSEEK_API_KEY` 环境变量读取，不进入前端、不写入仓库、不输出到日志。
+- AI 上下文由 monitoring 和 reports 的固定服务函数生成。
+- AI 没有 SQL 执行工具，不生成 SQL，不修改订单、支付、退款或主数据。
+- 系统外问题由 system prompt 限制为提示“我主要基于当前食堂运营数据回答”。

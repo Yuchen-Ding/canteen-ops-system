@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     database_url: str = "postgresql://canteen_user:canteen_password@postgres:5432/canteen_ops"
     ai_provider: str = "mock"
     ai_api_key: str = ""
+    deepseek_api_key: str = ""
+    deepseek_base_url: str = "https://api.deepseek.com"
+    deepseek_model: str = "deepseek-chat"
     log_level: str = "INFO"
     cors_origins_raw: str = "http://localhost:3100"
 

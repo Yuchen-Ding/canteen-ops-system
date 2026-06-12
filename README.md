@@ -187,3 +187,37 @@ scripts/deploy-qa.sh
 - 重复退款同一订单时，后端应返回“订单已退款，不能重复退款”。
 - 打开运营看板确认今日订单、营业额、退款金额和净收入。
 - 在运营日报选择日期，在运营月报选择月份，确认餐厅、档口和热门菜品统计可展示。
+
+## 阶段 4 已实现功能
+
+- 食堂基础监控：展示餐厅、档口、菜品、套餐、员工、访客和 POS 设备规模及基础状态。
+- 报表中心：统一支持日、月、年统计周期，默认值分别使用 `YYYY-MM-DD`、`YYYY-MM`、`YYYY`。
+- 年度报表：展示年度订单、收入、退款、净收入、月度趋势和经营排行。
+- AI 运营助手：全局可拖动浮窗，基于固定结构化运营数据回答问题。
+- AI 会话记录：保存会话和 USER / ASSISTANT 消息，重新打开后加载最近会话。
+
+阶段 4 不实现当前用餐人数、闸机人流、复杂设备心跳、自然语言转 SQL、AI 修改数据或补贴规则。
+
+## DeepSeek 配置
+
+DeepSeek API Key 只配置在服务器 `env/.env.qa`，不提交 Git：
+
+```text
+DEEPSEEK_API_KEY=<your-deepseek-api-key>
+DEEPSEEK_BASE_URL=https://api.deepseek.com
+DEEPSEEK_MODEL=deepseek-chat
+```
+
+未配置 `DEEPSEEK_API_KEY` 时，其他业务功能可正常运行，AI 接口返回“AI 服务未配置，请检查 DEEPSEEK_API_KEY。”
+
+## 阶段 4 QA 数据库升级
+
+无需重置数据库 volume。执行幂等 SQL创建 AI 会话表：
+
+```bash
+set -a
+source env/.env.qa
+set +a
+docker exec -i canteen_postgres_qa psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" < database/init.sql
+scripts/deploy-qa.sh
+```

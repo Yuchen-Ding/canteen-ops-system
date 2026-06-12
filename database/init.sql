@@ -235,3 +235,28 @@ create index if not exists idx_refunds_refunded_at on canteen_ops.refunds(refund
 insert into canteen_ops.migration_history (version, description)
 values ('0004', 'stage 3 refund and reporting baseline')
 on conflict (version) do nothing;
+
+create table if not exists canteen_ops.ai_chat_sessions (
+    id bigserial primary key,
+    session_no varchar(60) not null unique,
+    title varchar(200) not null,
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now()
+);
+
+create table if not exists canteen_ops.ai_chat_messages (
+    id bigserial primary key,
+    session_id bigint not null references canteen_ops.ai_chat_sessions(id),
+    role varchar(30) not null,
+    content text not null,
+    created_at timestamptz not null default now()
+);
+
+create index if not exists idx_ai_chat_messages_session_id
+    on canteen_ops.ai_chat_messages(session_id);
+create index if not exists idx_ai_chat_messages_created_at
+    on canteen_ops.ai_chat_messages(created_at);
+
+insert into canteen_ops.migration_history (version, description)
+values ('0005', 'stage 4 monitoring reporting and ai assistant baseline')
+on conflict (version) do nothing;
