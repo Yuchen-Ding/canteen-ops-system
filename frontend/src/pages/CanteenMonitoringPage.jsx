@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 
+import { StatusBadge } from '../components/StatusBadge.jsx';
 import { getCanteenMonitoringOverview } from '../services/api.js';
 
 function money(value) {
@@ -48,10 +49,10 @@ export function CanteenMonitoringPage() {
 
   return (
     <section className="master-page">
-      <div className="section-heading dashboard-heading">
+      <div className="page-header">
         <div>
-          <h2>食堂基础监控</h2>
-          <p>展示主数据规模、基础状态和今日业务概览，不包含人流或真实硬件监控。</p>
+          <h1>食堂基础监控</h1>
+          <p>查看餐厅、档口、菜品、员工、访客和设备的基础规模与状态。</p>
         </div>
         <button className="secondary-button" type="button" onClick={loadOverview}>
           <RefreshCw size={16} /> 刷新
@@ -102,7 +103,7 @@ export function CanteenMonitoringPage() {
               <div className="table-panel compact-table">
                 <table><thead><tr><th>餐厅</th><th>城市</th><th>状态</th><th>档口数</th></tr></thead>
                   <tbody>{overview.canteen_list.map((item) => (
-                    <tr key={item.id}><td>{item.name}</td><td>{item.city}</td><td>{item.status}</td><td>{item.stall_count}</td></tr>
+                    <tr key={item.id}><td>{item.name}</td><td>{item.city}</td><td><StatusBadge value={item.status} /></td><td>{item.stall_count}</td></tr>
                   ))}</tbody>
                 </table>
               </div>
@@ -112,7 +113,7 @@ export function CanteenMonitoringPage() {
               <div className="table-panel compact-table">
                 <table><thead><tr><th>档口</th><th>餐厅</th><th>状态</th><th>菜品数</th></tr></thead>
                   <tbody>{overview.stall_list.map((item) => (
-                    <tr key={item.id}><td>{item.name}</td><td>{item.canteen_name}</td><td>{item.status}</td><td>{item.dish_count}</td></tr>
+                    <tr key={item.id}><td>{item.name}</td><td>{item.canteen_name}</td><td><StatusBadge value={item.status} /></td><td>{item.dish_count}</td></tr>
                   ))}</tbody>
                 </table>
               </div>
@@ -126,7 +127,7 @@ export function CanteenMonitoringPage() {
                 <tbody>{overview.device_list.map((item) => (
                   <tr key={item.id}>
                     <td>{item.device_name}</td><td>{item.device_type}</td><td>{item.canteen_name}</td>
-                    <td>{item.stall_name || '-'}</td><td>{item.location || '-'}</td><td>{item.status}</td>
+                    <td>{item.stall_name || '-'}</td><td>{item.location || '-'}</td><td><StatusBadge value={item.status} /></td>
                   </tr>
                 ))}</tbody>
               </table>

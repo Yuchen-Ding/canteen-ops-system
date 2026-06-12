@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 
+import { StatusBadge } from '../components/StatusBadge.jsx';
 import { fetchRecords } from '../services/api.js';
 
 const paymentMethodOptions = [
@@ -55,9 +56,11 @@ export function PaymentsPage() {
 
   return (
     <section className="master-page">
-      <div className="section-heading">
-        <h2>支付流水</h2>
-        <p>查看阶段 2 mock 支付生成的流水记录，不接入真实支付渠道。</p>
+      <div className="page-header">
+        <div>
+          <h1>支付流水</h1>
+          <p>查看员工卡和访客扫码消费产生的支付流水。</p>
+        </div>
       </div>
 
       <div className="toolbar">
@@ -102,7 +105,7 @@ export function PaymentsPage() {
                 <td>{payment.order_no}</td>
                 <td>{money(payment.payment_amount)}</td>
                 <td>{labelOf(paymentMethodOptions, payment.payment_method)}</td>
-                <td>{labelOf(paymentStatusOptions, payment.payment_status)}</td>
+                <td><StatusBadge value={payment.payment_status} label={labelOf(paymentStatusOptions, payment.payment_status)} /></td>
                 <td>{payment.paid_at ? new Date(payment.paid_at).toLocaleString() : '-'}</td>
               </tr>
             ))}

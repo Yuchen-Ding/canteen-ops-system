@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Eye, RefreshCw, Search } from 'lucide-react';
 
+import { StatusBadge } from '../components/StatusBadge.jsx';
 import { fetchRecordDetail, fetchRecords } from '../services/api.js';
 
 const refundStatusOptions = [
@@ -64,9 +65,11 @@ export function RefundsPage() {
 
   return (
     <section className="master-page">
-      <div className="section-heading">
-        <h2>退款管理</h2>
-        <p>查看全额 mock 退款记录。阶段 3 不接真实支付渠道，也不包含复杂审批流。</p>
+      <div className="page-header">
+        <div>
+          <h1>退款管理</h1>
+          <p>查看订单全额退款记录、退款状态和退款详情。</p>
+        </div>
       </div>
 
       <div className="toolbar">
@@ -104,7 +107,7 @@ export function RefundsPage() {
             <span>订单号：{detail.order_no}</span>
             <span>支付流水号：{detail.payment_no}</span>
             <span>退款金额：{money(detail.refund_amount)}</span>
-            <span>退款状态：{labelOf(detail.refund_status)}</span>
+            <span>退款状态：<StatusBadge value={detail.refund_status} label={labelOf(detail.refund_status)} /></span>
             <span>申请人：{detail.requested_by}</span>
             <span>退款时间：{detail.refunded_at ? new Date(detail.refunded_at).toLocaleString() : '-'}</span>
           </div>
@@ -134,7 +137,7 @@ export function RefundsPage() {
                 <td>{refund.order_no}</td>
                 <td>{refund.payment_no}</td>
                 <td>{money(refund.refund_amount)}</td>
-                <td>{labelOf(refund.refund_status)}</td>
+                <td><StatusBadge value={refund.refund_status} label={labelOf(refund.refund_status)} /></td>
                 <td>{refund.requested_by}</td>
                 <td>{refund.refunded_at ? new Date(refund.refunded_at).toLocaleString() : '-'}</td>
                 <td>

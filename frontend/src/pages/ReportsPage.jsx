@@ -84,9 +84,11 @@ export function ReportsPage() {
 
   return (
     <section className="master-page">
-      <div className="section-heading">
-        <h2>报表中心</h2>
-        <p>按日、月、年查看订单、收入、退款、净收入和经营排行。</p>
+      <div className="page-header">
+        <div>
+          <h1>报表中心</h1>
+          <p>按日、月、年查看餐厅运营统计数据。</p>
+        </div>
       </div>
       <div className="toolbar report-toolbar">
         <div className="segmented-control">

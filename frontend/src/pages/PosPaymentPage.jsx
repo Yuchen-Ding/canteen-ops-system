@@ -137,9 +137,11 @@ export function PosPaymentPage({ mode }) {
 
   return (
     <section className="master-page">
-      <div className="section-heading">
-        <h2>{isEmployee ? '员工刷卡消费' : '访客扫码消费'}</h2>
-        <p>{isEmployee ? '模拟员工使用餐卡在 POS 设备完成消费。' : '模拟访客扫码支付，默认 mock 支付成功。'}</p>
+      <div className="page-header">
+        <div>
+          <h1>{isEmployee ? '员工刷卡消费' : '访客扫码消费'}</h1>
+          <p>{isEmployee ? '模拟员工使用餐卡在 POS 设备完成消费。' : '模拟访客扫码支付并生成订单和支付流水。'}</p>
+        </div>
       </div>
 
       {error ? <div className="error-banner">{error}</div> : null}

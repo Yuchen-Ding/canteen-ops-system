@@ -54,10 +54,10 @@ export function Dashboard() {
 
   return (
     <section className="dashboard">
-      <div className="section-heading dashboard-heading">
+      <div className="page-header">
         <div>
-          <h2>运营看板</h2>
-          <p>{report ? `${report.report_date} 企业餐厅运营数据` : '加载今日运营数据'}</p>
+          <h1>运营看板</h1>
+          <p>查看企业餐厅今日订单、营业额、退款和热门菜品情况。</p>
         </div>
         <button className="secondary-button" type="button" onClick={loadDashboard}>刷新数据</button>
       </div>

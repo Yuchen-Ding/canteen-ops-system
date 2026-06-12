@@ -81,7 +81,7 @@ export const masterDataPages = {
   },
   dishes: {
     title: '菜品管理',
-    description: '维护档口下售卖菜品、价格和可售状态，阶段 1 不涉及下单和库存。',
+    description: '维护档口下售卖菜品、价格和可售状态，为消费下单提供菜品基础。',
     endpoint: '/api/v1/dishes',
     idField: 'id',
     statusOptions,
@@ -108,7 +108,7 @@ export const masterDataPages = {
   },
   mealPackages: {
     title: '套餐管理',
-    description: '维护档口套餐基础资料。套餐与菜品明细关系已在数据库预留，页面阶段 1 先维护套餐主体。',
+    description: '维护档口套餐基础资料，为后续套餐售卖和菜品组合提供数据基础。',
     endpoint: '/api/v1/meal-packages',
     idField: 'id',
     statusOptions,
@@ -168,7 +168,7 @@ export const masterDataPages = {
   },
   visitors: {
     title: '访客管理',
-    description: '维护访客基础信息，为后续访客扫码支付和接待消费场景提供对象资料。',
+    description: '维护访客基础信息，为访客扫码消费和接待场景提供数据基础。',
     endpoint: '/api/v1/visitors',
     idField: 'id',
     statusOptions,
@@ -191,7 +191,7 @@ export const masterDataPages = {
   },
   devices: {
     title: 'POS 设备',
-    description: '维护餐厅和档口设备资料，阶段 1 只管理基础信息和设备状态。',
+    description: '维护餐厅和档口 POS 设备的基础信息、归属关系和运行状态。',
     endpoint: '/api/v1/devices',
     idField: 'id',
     statusOptions: deviceStatusOptions,

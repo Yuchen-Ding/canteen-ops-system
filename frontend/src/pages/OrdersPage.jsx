@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Eye, RefreshCw, RotateCcw } from 'lucide-react';
 
+import { StatusBadge } from '../components/StatusBadge.jsx';
 import { createRecord, fetchRecordDetail, fetchRecords } from '../services/api.js';
 
 const customerTypeOptions = [
@@ -90,9 +91,11 @@ export function OrdersPage() {
 
   return (
     <section className="master-page">
-      <div className="section-heading">
-        <h2>订单管理</h2>
-        <p>查看员工刷卡和访客扫码产生的订单，阶段 2 不提供退款和结算操作。</p>
+      <div className="page-header">
+        <div>
+          <h1>订单管理</h1>
+          <p>查看消费订单、订单明细和退款状态。</p>
+        </div>
       </div>
 
       <div className="toolbar">
@@ -157,7 +160,7 @@ export function OrdersPage() {
             </label>
           </div>
           <div className="form-actions">
-            <button className="primary-button" disabled={submittingRefund} type="submit">
+            <button className="danger-button" disabled={submittingRefund} type="submit">
               {submittingRefund ? '退款处理中' : '确认全额退款'}
             </button>
           </div>
@@ -172,8 +175,8 @@ export function OrdersPage() {
           </div>
           <div className="detail-grid">
             <span>客户类型：{labelOf(customerTypeOptions, detail.order.customer_type)}</span>
-            <span>支付状态：{labelOf(paymentStatusOptions, detail.order.payment_status)}</span>
-            <span>订单状态：{labelOf(orderStatusOptions, detail.order.order_status)}</span>
+            <span>支付状态：<StatusBadge value={detail.order.payment_status} label={labelOf(paymentStatusOptions, detail.order.payment_status)} /></span>
+            <span>订单状态：<StatusBadge value={detail.order.order_status} label={labelOf(orderStatusOptions, detail.order.order_status)} /></span>
             <span>应付金额：{money(detail.order.payable_amount)}</span>
           </div>
           <div className="table-panel compact-table">
@@ -224,18 +227,20 @@ export function OrdersPage() {
                 <td>{order.stall_name || order.stall_id}</td>
                 <td>{labelOf(customerTypeOptions, order.customer_type)}</td>
                 <td>{money(order.payable_amount)}</td>
-                <td>{labelOf(paymentStatusOptions, order.payment_status)}</td>
-                <td>{labelOf(orderStatusOptions, order.order_status)}</td>
+                <td><StatusBadge value={order.payment_status} label={labelOf(paymentStatusOptions, order.payment_status)} /></td>
+                <td><StatusBadge value={order.order_status} label={labelOf(orderStatusOptions, order.order_status)} /></td>
                 <td>{order.transaction_time ? new Date(order.transaction_time).toLocaleString() : '-'}</td>
                 <td>
-                  <button className="icon-button" title="查看详情" type="button" onClick={() => showDetail(order.id)}>
-                    <Eye size={16} />
-                  </button>
-                  {order.payment_status === 'PAID' && order.order_status === 'COMPLETED' ? (
-                    <button className="icon-button" title="退款" type="button" onClick={() => setRefundOrder(order)}>
-                      <RotateCcw size={16} />
+                  <div className="row-actions">
+                    <button className="icon-button" title="查看详情" type="button" onClick={() => showDetail(order.id)}>
+                      <Eye size={16} />
                     </button>
-                  ) : null}
+                    {order.payment_status === 'PAID' && order.order_status === 'COMPLETED' ? (
+                      <button className="icon-button" title="退款" type="button" onClick={() => setRefundOrder(order)}>
+                        <RotateCcw size={16} />
+                      </button>
+                    ) : null}
+                  </div>
                 </td>
               </tr>
             ))}

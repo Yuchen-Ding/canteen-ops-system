@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { CheckCircle2, Edit3, PauseCircle, Plus, RefreshCw, Search } from 'lucide-react';
 
+import { StatusBadge } from '../components/StatusBadge.jsx';
 import { createRecord, fetchRecords, updateRecord, updateRecordStatus } from '../services/api.js';
 
 function formatValue(value, column, referenceOptions = {}) {
@@ -18,15 +19,7 @@ function formatValue(value, column, referenceOptions = {}) {
     return value ? '是' : '否';
   }
   if (column.type === 'status') {
-    const statusLabels = {
-      ACTIVE: '启用',
-      INACTIVE: '停用',
-      ONLINE: '在线',
-      OFFLINE: '离线',
-      MAINTENANCE: '维护中',
-      ERROR: '故障',
-    };
-    return statusLabels[value] || value;
+    return <StatusBadge value={value} />;
   }
   return value;
 }
@@ -278,9 +271,11 @@ export function MasterDataPage({ config }) {
 
   return (
     <section className="master-page">
-      <div className="section-heading">
-        <h2>{config.title}</h2>
-        <p>{config.description}</p>
+      <div className="page-header">
+        <div>
+          <h1>{config.title}</h1>
+          <p>{config.description}</p>
+        </div>
       </div>
 
       <div className="toolbar">
