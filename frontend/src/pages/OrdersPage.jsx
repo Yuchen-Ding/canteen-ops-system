@@ -63,6 +63,16 @@ export function OrdersPage() {
     loadOrders(1);
   };
 
+  const resetFilters = () => {
+    const nextFilters = { customer_type: '', payment_status: '', order_status: '' };
+    setFilters(nextFilters);
+    setPage(1);
+    setError('');
+    fetchRecords('/api/v1/orders', { ...nextFilters, page: 1, pageSize: 20 })
+      .then(setData)
+      .catch((err) => setError(err.message || '订单加载失败'));
+  };
+
   const showDetail = async (orderId) => {
     setError('');
     try {
@@ -98,7 +108,7 @@ export function OrdersPage() {
         </div>
       </div>
 
-      <div className="toolbar">
+      <div className="toolbar filter-bar">
         <form className="search-form" onSubmit={submitSearch}>
           <select value={filters.customer_type} onChange={(event) => setFilters({ ...filters, customer_type: event.target.value })}>
             <option value="">全部客户类型</option>
@@ -118,7 +128,8 @@ export function OrdersPage() {
               <option key={option.value} value={option.value}>{option.label}</option>
             ))}
           </select>
-          <button className="secondary-button" type="submit">查询</button>
+          <button className="primary-button" type="submit">查询</button>
+          <button className="secondary-button" type="button" onClick={resetFilters}>重置</button>
         </form>
         <button className="icon-button" title="刷新" type="button" onClick={loadOrders}>
           <RefreshCw size={17} />

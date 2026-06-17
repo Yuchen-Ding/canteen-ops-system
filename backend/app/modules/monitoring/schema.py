@@ -19,6 +19,7 @@ class StatusSummary(BaseModel):
     available_dish_count: int
     online_device_count: int
     offline_device_count: int
+    maintenance_device_count: int = 0
     inactive_employee_count: int
     inactive_visitor_count: int
 
@@ -30,3 +31,18 @@ class TodayBusinessSummary(BaseModel):
     today_net_revenue: Decimal
     today_employee_order_count: int
     today_visitor_order_count: int
+
+
+class MonitoringAlert(BaseModel):
+    level: str
+    title: str
+    message: str
+    source: str
+    trigger_code: str
+
+
+class MonitoringStatus(BaseModel):
+    level: str
+    label: str
+    message: str
+    alerts: list[MonitoringAlert]

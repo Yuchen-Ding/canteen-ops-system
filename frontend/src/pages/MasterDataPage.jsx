@@ -178,11 +178,16 @@ export function MasterDataPage({ config }) {
     [config],
   );
 
-  const loadData = async () => {
+  const loadData = async (targetPage = page, nextFilters = { keyword, status }) => {
     setLoading(true);
     setError('');
     try {
-      const result = await fetchRecords(config.endpoint, { keyword, status, page, pageSize: 20 });
+      const result = await fetchRecords(config.endpoint, {
+        keyword: nextFilters.keyword,
+        status: nextFilters.status,
+        page: targetPage,
+        pageSize: 20,
+      });
       setData(result);
     } catch (err) {
       setError(err.message || '加载失败');
@@ -236,7 +241,15 @@ export function MasterDataPage({ config }) {
   const handleSearch = (event) => {
     event.preventDefault();
     setPage(1);
-    loadData();
+    loadData(1);
+  };
+
+  const resetSearch = () => {
+    const nextFilters = { keyword: '', status: '' };
+    setKeyword('');
+    setStatus('');
+    setPage(1);
+    loadData(1, nextFilters);
   };
 
   const handleSubmit = async (payload) => {
@@ -278,7 +291,7 @@ export function MasterDataPage({ config }) {
         </div>
       </div>
 
-      <div className="toolbar">
+      <div className="toolbar filter-bar">
         <form className="search-form" onSubmit={handleSearch}>
           <div className="search-box">
             <Search size={17} />
@@ -296,8 +309,11 @@ export function MasterDataPage({ config }) {
               </option>
             ))}
           </select>
-          <button className="secondary-button" type="submit">
+          <button className="primary-button" type="submit">
             查询
+          </button>
+          <button className="secondary-button" type="button" onClick={resetSearch}>
+            重置
           </button>
         </form>
         <div className="toolbar-actions">

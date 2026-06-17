@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 
+import { DistributionBars, HorizontalBarChart, TrendBarChart } from '../components/ChartBlocks.jsx';
 import { fetchReport, getYearlyReport } from '../services/api.js';
 
 function currentDateParts() {
@@ -43,6 +44,20 @@ function RankingTable({ title, items, kind = 'revenue' }) {
       </div>
     </section>
   );
+}
+
+function consumptionStructure(report, periodType) {
+  if (!report) return [];
+  if (periodType === 'day') {
+    return [
+      { label: '员工订单', value: report.employee_orders || 0 },
+      { label: '访客订单', value: report.visitor_orders || 0 },
+    ];
+  }
+  return [
+    { label: '员工消费', value: report.employee_consumption_summary?.revenue || 0 },
+    { label: '访客消费', value: report.visitor_consumption_summary?.revenue || 0 },
+  ];
 }
 
 export function ReportsPage() {
@@ -113,15 +128,40 @@ export function ReportsPage() {
             <article className="metric-block" key={label}><span>{label}</span><strong>{value}</strong></article>
           ))}</div>
           {periodType === 'year' ? (
-            <section className="report-section yearly-table">
-              <h3>月度趋势</h3>
-              <div className="table-panel"><table><thead><tr><th>月份</th><th>订单数</th><th>营业额</th><th>退款</th><th>净收入</th></tr></thead>
-                <tbody>{(report.revenue_by_month || []).map((item) => (
-                  <tr key={item.month}><td>{item.month}</td><td>{item.order_count}</td><td>{money(item.revenue)}</td><td>{money(item.refund_amount)}</td><td>{money(item.net_revenue)}</td></tr>
-                ))}</tbody>
-              </table></div>
-            </section>
+            <TrendBarChart
+              formatter={money}
+              items={report.revenue_by_month || []}
+              labelKey="month"
+              title="年度月份收入趋势"
+              valueKey="revenue"
+            />
           ) : null}
+          <div className="report-visual-grid">
+            <HorizontalBarChart
+              formatter={money}
+              items={report.revenue_by_canteen || []}
+              title="餐厅收入分布"
+              valueKey="revenue"
+            />
+            <HorizontalBarChart
+              formatter={money}
+              items={report.revenue_by_stall || []}
+              title="档口收入分布"
+              valueKey="revenue"
+            />
+            <HorizontalBarChart
+              formatter={(value) => `${value} 份`}
+              items={report.top_dishes || []}
+              title="热门菜品排行"
+              valueKey="quantity"
+            />
+            <DistributionBars
+              formatter={periodType === 'day' ? (value) => `${value} 单` : money}
+              items={consumptionStructure(report, periodType)}
+              title="员工 / 访客消费结构"
+              valueKey="value"
+            />
+          </div>
           <div className="report-grid">
             <RankingTable title="餐厅收入" items={report.revenue_by_canteen || []} />
             <RankingTable title="档口收入" items={report.revenue_by_stall || []} />

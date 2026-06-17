@@ -127,3 +127,23 @@ QA 环境建议部署在阿里云或华为云 Ubuntu 服务器中：
 - AI 上下文由 monitoring 和 reports 的固定服务函数生成。
 - AI 没有 SQL 执行工具，不生成 SQL，不修改订单、支付、退款或主数据。
 - 系统外问题由 system prompt 限制为提示“我主要基于当前食堂运营数据回答”。
+
+## 阶段 5 可视化和告警架构
+
+阶段 5 继续使用现有模块，不新增数据库表，不新增 API 路径。
+
+`backend/app/modules/reports` 在 `GET /api/v1/reports/dashboard` 中增加看板增强字段：
+
+- 近 7 日营业额和订单数趋势由订单 SQL 聚合实时计算。
+- 员工/访客结构由订单客户类型聚合得到。
+- 支付状态分布由支付流水状态聚合得到。
+- 看板告警摘要基于 POS 设备状态、今日订单和今日退款金额实时计算。
+
+`backend/app/modules/monitoring` 在 `GET /api/v1/monitoring/canteen-overview` 中增加 `monitoring_status`：
+
+- 设备类 trigger：离线 POS 为 `CRITICAL`，维护中 POS 为 `WARNING`。
+- 主数据类 trigger：无启用档口为 `CRITICAL`，无可售菜品为 `WARNING`。
+- 业务类 trigger：今日无订单为 `WARNING`。
+- 整体状态取最高级别：有 `CRITICAL` 则告警，否则有 `WARNING` 则注意，否则正常。
+
+前端不引入大型图表库，使用 React 组件和 CSS 绘制轻量条形图、趋势柱、分布条、状态灯和告警卡片。阶段 5 的 UI/UX 优化只改变展示层，不改变主数据、订单、支付、退款和 AI 的核心流程。

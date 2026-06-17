@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { BadgeDollarSign, ClipboardList, RefreshCcw, TrendingUp, UserRound, UsersRound } from 'lucide-react';
 
+import { DistributionBars, TrendBarChart } from '../components/ChartBlocks.jsx';
+import { StatusBadge } from '../components/StatusBadge.jsx';
 import { fetchReport } from '../services/api.js';
 
 function money(value) {
@@ -20,6 +22,32 @@ function RankingList({ title, items, valueKey, valueFormatter }) {
         ))}
         {items.length === 0 ? <li className="empty-ranking">暂无数据</li> : null}
       </ol>
+    </section>
+  );
+}
+
+function AlertSummary({ alerts }) {
+  return (
+    <section className="alert-panel">
+      <div className="chart-card-header">
+        <h3>告警摘要</h3>
+        <span>{alerts.length ? `${alerts.length} 条提醒` : '运行平稳'}</span>
+      </div>
+      {alerts.length === 0 ? (
+        <div className="empty-state">当前暂无关键异常</div>
+      ) : (
+        <div className="alert-list">
+          {alerts.map((alert) => (
+            <article className={`alert-item ${alert.level.toLowerCase()}`} key={alert.trigger_code}>
+              <StatusBadge value={alert.level} />
+              <div>
+                <strong>{alert.title}</strong>
+                <p>{alert.message}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
@@ -78,11 +106,44 @@ export function Dashboard() {
       </div>
 
       {report ? (
-        <div className="ranking-grid">
-          <RankingList title="餐厅收入排行" items={report.revenue_by_canteen || []} valueKey="revenue" valueFormatter={money} />
-          <RankingList title="档口收入排行" items={report.revenue_by_stall || []} valueKey="revenue" valueFormatter={money} />
-          <RankingList title="热门菜品" items={report.top_dishes || []} valueKey="quantity" valueFormatter={(value) => `${value} 份`} />
-        </div>
+        <>
+          <div className="dashboard-chart-grid wide-chart-grid">
+            <TrendBarChart
+              formatter={money}
+              items={report.revenue_trend_7d || []}
+              title="近 7 日营业额趋势"
+              valueKey="revenue"
+            />
+            <TrendBarChart
+              formatter={(value) => `${value} 单`}
+              items={report.order_trend_7d || []}
+              title="近 7 日订单数趋势"
+              valueKey="order_count"
+            />
+          </div>
+
+          <div className="dashboard-chart-grid">
+            <DistributionBars
+              formatter={(value) => `${value} 单`}
+              items={report.customer_type_distribution || []}
+              title="员工 / 访客订单占比"
+              valueKey="order_count"
+            />
+            <DistributionBars
+              formatter={(value) => `${value} 笔`}
+              items={report.payment_status_distribution || []}
+              title="支付状态分布"
+              valueKey="count"
+            />
+            <AlertSummary alerts={report.dashboard_alerts || []} />
+          </div>
+
+          <div className="ranking-grid">
+            <RankingList title="餐厅收入排行" items={report.revenue_by_canteen || []} valueKey="revenue" valueFormatter={money} />
+            <RankingList title="档口收入排行" items={report.revenue_by_stall || []} valueKey="revenue" valueFormatter={money} />
+            <RankingList title="热门菜品" items={report.top_dishes || []} valueKey="quantity" valueFormatter={(value) => `${value} 份`} />
+          </div>
+        </>
       ) : null}
     </section>
   );

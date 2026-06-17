@@ -54,6 +54,16 @@ export function RefundsPage() {
     loadRefunds(1);
   };
 
+  const resetFilters = () => {
+    setKeyword('');
+    setRefundStatus('');
+    setPage(1);
+    setError('');
+    fetchRecords('/api/v1/refunds', { keyword: '', refund_status: '', page: 1, pageSize: 20 })
+      .then(setData)
+      .catch((err) => setError(err.message || '退款记录加载失败'));
+  };
+
   const showDetail = async (refundId) => {
     setError('');
     try {
@@ -72,7 +82,7 @@ export function RefundsPage() {
         </div>
       </div>
 
-      <div className="toolbar">
+      <div className="toolbar filter-bar">
         <form className="search-form" onSubmit={submitSearch}>
           <div className="search-box">
             <Search size={17} />
@@ -88,7 +98,8 @@ export function RefundsPage() {
               <option key={option.value} value={option.value}>{option.label}</option>
             ))}
           </select>
-          <button className="secondary-button" type="submit">查询</button>
+          <button className="primary-button" type="submit">查询</button>
+          <button className="secondary-button" type="button" onClick={resetFilters}>重置</button>
         </form>
         <button className="icon-button" title="刷新" type="button" onClick={() => loadRefunds()}>
           <RefreshCw size={17} />

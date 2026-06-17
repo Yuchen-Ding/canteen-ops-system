@@ -54,6 +54,16 @@ export function PaymentsPage() {
     loadPayments(1);
   };
 
+  const resetFilters = () => {
+    const nextFilters = { payment_method: '', payment_status: '' };
+    setFilters(nextFilters);
+    setPage(1);
+    setError('');
+    fetchRecords('/api/v1/payments', { ...nextFilters, page: 1, pageSize: 20 })
+      .then(setData)
+      .catch((err) => setError(err.message || '支付流水加载失败'));
+  };
+
   return (
     <section className="master-page">
       <div className="page-header">
@@ -63,7 +73,7 @@ export function PaymentsPage() {
         </div>
       </div>
 
-      <div className="toolbar">
+      <div className="toolbar filter-bar">
         <form className="search-form" onSubmit={submitSearch}>
           <select value={filters.payment_method} onChange={(event) => setFilters({ ...filters, payment_method: event.target.value })}>
             <option value="">全部支付方式</option>
@@ -77,7 +87,8 @@ export function PaymentsPage() {
               <option key={option.value} value={option.value}>{option.label}</option>
             ))}
           </select>
-          <button className="secondary-button" type="submit">查询</button>
+          <button className="primary-button" type="submit">查询</button>
+          <button className="secondary-button" type="button" onClick={resetFilters}>重置</button>
         </form>
         <button className="icon-button" title="刷新" type="button" onClick={loadPayments}>
           <RefreshCw size={17} />

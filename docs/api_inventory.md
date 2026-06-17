@@ -87,6 +87,27 @@
 
 AI 接口不接受 SQL，也不提供业务数据写入能力。
 
+## 阶段 5 兼容增强字段
+
+阶段 5 不新增 API 路径，只在现有接口中增加向后兼容字段。
+
+`GET /api/v1/reports/dashboard` 保留原有字段，并新增：
+
+- `revenue_trend_7d`：近 7 日营业额趋势，元素包含 `date`、`revenue`。
+- `order_trend_7d`：近 7 日订单数趋势，元素包含 `date`、`order_count`。
+- `customer_type_distribution`：员工/访客订单结构。
+- `payment_status_distribution`：支付状态分布。
+- `dashboard_alerts`：运营看板轻量告警摘要。
+
+`GET /api/v1/monitoring/canteen-overview` 保留原有字段，并新增：
+
+- `monitoring_status.level`：`NORMAL`、`WARNING`、`CRITICAL`。
+- `monitoring_status.label`：正常、注意、告警。
+- `monitoring_status.message`：状态说明。
+- `monitoring_status.alerts`：实时 trigger 告警列表，包含 `level`、`title`、`message`、`source`、`trigger_code`。
+
+阶段 5 告警为实时规则计算，不保存告警历史，不推送外部通知。
+
 ## 命名约束
 
 - API 路径统一使用英文。

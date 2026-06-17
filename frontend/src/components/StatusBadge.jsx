@@ -13,6 +13,9 @@ const statusLabels = {
   COMPLETED: '已完成',
   CANCELLED: '已取消',
   SUCCESS: '成功',
+  NORMAL: '正常',
+  WARNING: '注意',
+  CRITICAL: '告警',
 };
 
 const statusTones = {
@@ -22,14 +25,17 @@ const statusTones = {
   COMPLETED: 'success',
   SUCCESS: 'success',
   INACTIVE: 'neutral',
-  OFFLINE: 'neutral',
-  REFUNDED: 'neutral',
+  OFFLINE: 'danger',
+  REFUNDED: 'info',
   CANCELLED: 'neutral',
   PENDING: 'warning',
   CREATED: 'warning',
   MAINTENANCE: 'warning',
   ERROR: 'danger',
   FAILED: 'danger',
+  NORMAL: 'success',
+  WARNING: 'warning',
+  CRITICAL: 'danger',
 };
 
 export function StatusBadge({ value, label }) {

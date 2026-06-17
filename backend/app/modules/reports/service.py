@@ -10,7 +10,9 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.canteens.model import Canteen
+from app.modules.devices.model import Device
 from app.modules.orders.model import Order, OrderItem
+from app.modules.payments.model import Payment
 from app.modules.refunds.model import Refund
 from app.modules.stalls.model import Stall
 
@@ -179,10 +181,141 @@ async def _build_report(db: AsyncSession, start: datetime, end: datetime) -> dic
     }
 
 
+async def _trend_7d(db: AsyncSession, report_date: date) -> tuple[list[dict], list[dict]]:
+    revenue_trend = []
+    order_trend = []
+    for day_offset in range(6, -1, -1):
+        trend_date = report_date - timedelta(days=day_offset)
+        start, end = _day_range(trend_date)
+        summary = await _order_summary(db, start, end)
+        revenue_trend.append(
+            {
+                "date": trend_date.isoformat(),
+                "revenue": summary["revenue"],
+            }
+        )
+        order_trend.append(
+            {
+                "date": trend_date.isoformat(),
+                "order_count": summary["order_count"],
+            }
+        )
+    return revenue_trend, order_trend
+
+
+async def _customer_type_distribution(db: AsyncSession, start: datetime, end: datetime) -> list[dict]:
+    labels = {
+        "EMPLOYEE": "员工",
+        "VISITOR": "访客",
+    }
+    result = await db.execute(
+        select(
+            Order.customer_type,
+            func.count(Order.id).label("order_count"),
+            func.coalesce(func.sum(Order.payable_amount), 0).label("amount"),
+        )
+        .where(*_order_time_filters(start, end))
+        .group_by(Order.customer_type)
+        .order_by(Order.customer_type)
+    )
+    rows = {row.customer_type: row for row in result.all()}
+    return [
+        {
+            "customer_type": customer_type,
+            "label": labels[customer_type],
+            "order_count": rows.get(customer_type).order_count if rows.get(customer_type) else 0,
+            "amount": rows.get(customer_type).amount if rows.get(customer_type) else Decimal("0.00"),
+        }
+        for customer_type in ("EMPLOYEE", "VISITOR")
+    ]
+
+
+async def _payment_status_distribution(db: AsyncSession, start: datetime, end: datetime) -> list[dict]:
+    labels = {
+        "PENDING": "待支付",
+        "PAID": "已支付",
+        "FAILED": "失败",
+        "REFUNDED": "已退款",
+    }
+    result = await db.execute(
+        select(
+            Payment.payment_status,
+            func.count(Payment.id).label("count"),
+        )
+        .where(
+            Payment.created_at >= start,
+            Payment.created_at < end,
+        )
+        .group_by(Payment.payment_status)
+    )
+    rows = {row.payment_status: row.count for row in result.all()}
+    return [
+        {
+            "payment_status": status,
+            "label": label,
+            "count": rows.get(status, 0),
+        }
+        for status, label in labels.items()
+    ]
+
+
+async def _dashboard_alerts(db: AsyncSession, report: dict) -> list[dict]:
+    offline_device_count = int(
+        await db.scalar(select(func.count(Device.id)).where(Device.status == "OFFLINE")) or 0
+    )
+    maintenance_device_count = int(
+        await db.scalar(select(func.count(Device.id)).where(Device.status == "MAINTENANCE")) or 0
+    )
+
+    alerts = []
+    if offline_device_count > 0:
+        alerts.append(
+            {
+                "level": "CRITICAL",
+                "title": "存在离线 POS 设备",
+                "message": f"当前有 {offline_device_count} 台 POS 设备离线，请检查设备状态。",
+                "source": "DEVICE",
+                "trigger_code": "POS_OFFLINE",
+            }
+        )
+    if maintenance_device_count > 0:
+        alerts.append(
+            {
+                "level": "WARNING",
+                "title": "存在维护中 POS 设备",
+                "message": f"当前有 {maintenance_device_count} 台 POS 设备处于维护中。",
+                "source": "DEVICE",
+                "trigger_code": "POS_MAINTENANCE",
+            }
+        )
+    if report["order_count"] == 0:
+        alerts.append(
+            {
+                "level": "WARNING",
+                "title": "今日暂无交易数据",
+                "message": "今日尚未产生订单，请关注餐厅营业情况或数据采集状态。",
+                "source": "BUSINESS",
+                "trigger_code": "NO_TODAY_ORDER",
+            }
+        )
+    if report["refund_amount"] > 0:
+        alerts.append(
+            {
+                "level": "WARNING",
+                "title": "今日存在退款",
+                "message": f"今日退款金额为 {report['refund_amount']}，建议关注退款原因。",
+                "source": "BUSINESS",
+                "trigger_code": "TODAY_REFUND_EXISTS",
+            }
+        )
+    return alerts
+
+
 async def get_dashboard_report(db: AsyncSession) -> dict:
     report_date = datetime.now(REPORT_TIMEZONE).date()
     start, end = _day_range(report_date)
     report = await _build_report(db, start, end)
+    revenue_trend_7d, order_trend_7d = await _trend_7d(db, report_date)
     return jsonable_encoder(
         {
             "report_date": report_date.isoformat(),
@@ -198,6 +331,11 @@ async def get_dashboard_report(db: AsyncSession) -> dict:
             "top_dishes": report["top_dishes"],
             "revenue_by_canteen": report["revenue_by_canteen"],
             "revenue_by_stall": report["revenue_by_stall"],
+            "revenue_trend_7d": revenue_trend_7d,
+            "order_trend_7d": order_trend_7d,
+            "customer_type_distribution": await _customer_type_distribution(db, start, end),
+            "payment_status_distribution": await _payment_status_distribution(db, start, end),
+            "dashboard_alerts": await _dashboard_alerts(db, report),
         }
     )
 
